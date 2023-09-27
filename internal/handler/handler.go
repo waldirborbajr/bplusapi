@@ -29,9 +29,6 @@ func NewHandler() *chi.Mux {
 	router := chi.NewRouter()
 	router.Use(middleware.Recoverer)
 
-	db, err := repository.Connect()
-	catch(err)
-
 	router.Use(ChangeMethod)
 	router.Get("/", GetAllArticles)
 	router.Post("/upload", UploadHandler) // Add this
@@ -47,6 +44,8 @@ func NewHandler() *chi.Mux {
 			r.Get("/edit", EditArticle)  // GET /articles/1234/edit
 		})
 	})
+
+	return router
 }
 
 func UploadHandler(w http.ResponseWriter, r *http.Request) {
@@ -122,7 +121,7 @@ func ChangeMethod(next http.Handler) http.Handler {
 func ArticleCtx(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		articleID := chi.URLParam(r, "articleID")
-		article, err := dbGetArticle(articleID)
+		article, err := repository.DbGetArticle(articleID)
 		if err != nil {
 			fmt.Println(err)
 			http.Error(w, http.StatusText(404), 404)
@@ -134,7 +133,7 @@ func ArticleCtx(next http.Handler) http.Handler {
 }
 
 func GetAllArticles(w http.ResponseWriter, r *http.Request) {
-	articles, err := dbGetAllArticles()
+	articles, err := repository.DbGetAllArticles()
 	catch(err)
 
 	t, _ := template.ParseFiles("templates/base.html", "templates/index.html")
@@ -156,7 +155,7 @@ func CreateArticle(w http.ResponseWriter, r *http.Request) {
 		Content: template.HTML(content),
 	}
 
-	err := reopsitory.DbCreateArticle(article)
+	err := repository.DbCreateArticle(article)
 	catch(err)
 	http.Redirect(w, r, "/", http.StatusFound)
 }
@@ -186,14 +185,14 @@ func UpdateArticle(w http.ResponseWriter, r *http.Request) {
 		Content: template.HTML(content),
 	}
 	fmt.Println(newArticle.Content)
-	err := dbUpdateArticle(strconv.Itoa(article.ID), newArticle)
+	err := repository.DbUpdateArticle(strconv.Itoa(article.ID), newArticle)
 	catch(err)
 	http.Redirect(w, r, fmt.Sprintf("/articles/%d", article.ID), http.StatusFound)
 }
 
 func DeleteArticle(w http.ResponseWriter, r *http.Request) {
 	article := r.Context().Value("article").(*entity.Article)
-	err := dbDeleteArticle(strconv.Itoa(article.ID))
+	err := repository.DbDeleteArticle(strconv.Itoa(article.ID))
 	catch(err)
 
 	http.Redirect(w, r, "/", http.StatusFound)
