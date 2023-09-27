@@ -1,10 +1,16 @@
-package db
+package repository
 
-import "database/sql"
+import (
+	"database/sql"
 
-func connect() (*sql.DB, error) {
+	"github.com/waldirborbajr/bplusapi/internal/entity"
+)
+
+var db *sql.DB
+
+func Connect() (*sql.DB, error) {
 	var err error
-	db, err = sql.Open("sqlite3", "./data.sqlite")
+	db, err := sql.Open("sqlite3", "./data.sqlite")
 	if err != nil {
 		return nil, err
 	}
@@ -21,7 +27,7 @@ func connect() (*sql.DB, error) {
 	return db, nil
 }
 
-func dbCreateArticle(article *Article) error {
+func DbCreateArticle(article *entity.Article) error {
 	query, err := db.Prepare("insert into articles(title,content) values (?,?)")
 	defer query.Close()
 
@@ -37,7 +43,7 @@ func dbCreateArticle(article *Article) error {
 	return nil
 }
 
-func dbGetAllArticles() ([]*Article, error) {
+func DbGetAllArticles() ([]*entity.Article, error) {
 	query, err := db.Prepare("select id, title, content from articles")
 	defer query.Close()
 
@@ -48,9 +54,9 @@ func dbGetAllArticles() ([]*Article, error) {
 	if err != nil {
 		return nil, err
 	}
-	articles := make([]*Article, 0)
+	articles := make([]*entity.Article, 0)
 	for result.Next() {
-		data := new(Article)
+		data := new(entity.Article)
 		err := result.Scan(
 			&data.ID,
 			&data.Title,
@@ -65,7 +71,7 @@ func dbGetAllArticles() ([]*Article, error) {
 	return articles, nil
 }
 
-func dbGetArticle(articleID string) (*Article, error) {
+func DbGetArticle(articleID string) (*entity.Article, error) {
 	query, err := db.Prepare("select id, title, content from articles where id = ?")
 	defer query.Close()
 
@@ -73,7 +79,7 @@ func dbGetArticle(articleID string) (*Article, error) {
 		return nil, err
 	}
 	result := query.QueryRow(articleID)
-	data := new(Article)
+	data := new(entity.Article)
 	err = result.Scan(&data.ID, &data.Title, &data.Content)
 
 	if err != nil {
@@ -83,7 +89,7 @@ func dbGetArticle(articleID string) (*Article, error) {
 	return data, nil
 }
 
-func dbUpdateArticle(id string, article *Article) error {
+func DbUpdateArticle(id string, article *entity.Article) error {
 	query, err := db.Prepare("update articles set (title, content) = (?,?) where id=?")
 	defer query.Close()
 
@@ -99,7 +105,7 @@ func dbUpdateArticle(id string, article *Article) error {
 	return nil
 }
 
-func dbDeleteArticle(id string) error {
+func DbDeleteArticle(id string) error {
 	query, err := db.Prepare("delete from articles where id=?")
 	defer query.Close()
 
