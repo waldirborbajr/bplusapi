@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -9,13 +8,6 @@ import (
 	"github.com/go-chi/cors"
 	"github.com/waldirborbajr/bplusapi/internal/controllers"
 )
-
-func catch(err error) {
-	if err != nil {
-		fmt.Println(err)
-		panic(err)
-	}
-}
 
 func NewHandler() *chi.Mux {
 	router := chi.NewRouter()

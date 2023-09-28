@@ -14,15 +14,9 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/waldirborbajr/bplusapi/internal/entity"
+	"github.com/waldirborbajr/bplusapi/internal/error"
 	"github.com/waldirborbajr/bplusapi/internal/repository"
 )
-
-func catch(err error) {
-	if err != nil {
-		fmt.Println(err)
-		panic(err)
-	}
-}
 
 func UploadHandler(w http.ResponseWriter, r *http.Request) {
 	const MAX_UPLOAD_SIZE = 10 << 20
@@ -93,17 +87,17 @@ func ArticleCtx(next http.Handler) http.Handler {
 
 func GetAllArticles(w http.ResponseWriter, r *http.Request) {
 	articles, err := repository.DbGetAllArticles()
-	catch(err)
+	error.Catch(err)
 
 	t, _ := template.ParseFiles("templates/base.html", "templates/index.html")
 	err = t.Execute(w, articles)
-	catch(err)
+	error.Catch(err)
 }
 
 func NewArticle(w http.ResponseWriter, r *http.Request) {
 	t, _ := template.ParseFiles("templates/base.html", "templates/new.html")
 	err := t.Execute(w, nil)
-	catch(err)
+	error.Catch(err)
 }
 
 func CreateArticle(w http.ResponseWriter, r *http.Request) {
@@ -115,7 +109,7 @@ func CreateArticle(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err := repository.DbCreateArticle(article)
-	catch(err)
+	error.Catch(err)
 	http.Redirect(w, r, "/", http.StatusFound)
 }
 
@@ -123,7 +117,7 @@ func GetArticle(w http.ResponseWriter, r *http.Request) {
 	article := r.Context().Value("article").(*entity.Article)
 	t, _ := template.ParseFiles("templates/base.html", "templates/article.html")
 	err := t.Execute(w, article)
-	catch(err)
+	error.Catch(err)
 }
 
 func EditArticle(w http.ResponseWriter, r *http.Request) {
@@ -131,7 +125,7 @@ func EditArticle(w http.ResponseWriter, r *http.Request) {
 
 	t, _ := template.ParseFiles("templates/base.html", "templates/edit.html")
 	err := t.Execute(w, article)
-	catch(err)
+	error.Catch(err)
 }
 
 func UpdateArticle(w http.ResponseWriter, r *http.Request) {
@@ -145,14 +139,14 @@ func UpdateArticle(w http.ResponseWriter, r *http.Request) {
 	}
 	fmt.Println(newArticle.Content)
 	err := repository.DbUpdateArticle(strconv.Itoa(article.ID), newArticle)
-	catch(err)
+	error.Catch(err)
 	http.Redirect(w, r, fmt.Sprintf("/articles/%d", article.ID), http.StatusFound)
 }
 
 func DeleteArticle(w http.ResponseWriter, r *http.Request) {
 	article := r.Context().Value("article").(*entity.Article)
 	err := repository.DbDeleteArticle(strconv.Itoa(article.ID))
-	catch(err)
+	error.Catch(err)
 
 	http.Redirect(w, r, "/", http.StatusFound)
 }
