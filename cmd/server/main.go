@@ -21,7 +21,7 @@ func main() {
 	listener, err := net.Listen("tcp", addr)
 	error.Catch(err)
 
-	httpHandler := handler.NewHandler()
+	httpHandler := handler.RouteHandler()
 	server := &http.Server{
 		Handler: httpHandler,
 	}
@@ -32,7 +32,7 @@ func main() {
 
 	defer Stop(server)
 
-	log.Printf("Started server on %s", addr)
+	log.Printf("Started server on http://localhost%s", addr)
 
 	// listen for ctrl+c signal from terminal
 	ch := make(chan os.Signal, 1)
