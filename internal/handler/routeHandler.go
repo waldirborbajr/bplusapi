@@ -16,7 +16,6 @@ func RouteHandler() *chi.Mux {
 	router.Use(middleware.RealIP)
 	router.Use(middleware.Logger)
 	router.Use(middleware.Timeout(60 * time.Second))
-	router.Use(changeMethod)
 	router.Use(cors.Handler(cors.Options{
 		AllowedOrigins: []string{"https://*", "http://*"},
 		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
@@ -70,21 +69,4 @@ func appRoute(w http.ResponseWriter, r *http.Request) {
 
 func apiRoute(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("api"))
-}
-
-func changeMethod(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.Method == http.MethodPost {
-			switch method := r.PostFormValue("_method"); method {
-			case http.MethodPut:
-				fallthrough
-			case http.MethodPatch:
-				fallthrough
-			case http.MethodDelete:
-				r.Method = method
-			default:
-			}
-		}
-		next.ServeHTTP(w, r)
-	})
 }

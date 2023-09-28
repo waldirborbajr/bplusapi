@@ -6,8 +6,9 @@ x-default-logging: &logging
      max-file: "2"
 networks:
   default:
-    name: api-o11y
+    name: bplus-net
     driver: bridge
+
 services:
   mysql-auth:
     image: mariadb:10.5.8
