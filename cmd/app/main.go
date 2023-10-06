@@ -18,6 +18,8 @@ import (
 func main() {
 	addr := ":3030"
 
+	log.Println("Listening on http://localhost" + addr)
+
 	listener, err := net.Listen("tcp", addr)
 	error.Catch(err)
 
