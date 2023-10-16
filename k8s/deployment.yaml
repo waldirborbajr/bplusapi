@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bplusapi
+  labels:
+    app: bplusapi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bplusapi
+  template:
+    metadata:
+      labels:
+        app: bplusapi
+    spec:
+      containers:
+      - name: bplusapi
+        image: borba/bplusapi
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
