@@ -21,9 +21,11 @@ func main() {
 	log.Println("Listening on http://localhost" + addr)
 
 	listener, err := net.Listen("tcp", addr)
+
 	error.Catch(err)
 
 	httpHandler := handler.RouteHandler()
+
 	server := &http.Server{
 		Handler: httpHandler,
 	}
